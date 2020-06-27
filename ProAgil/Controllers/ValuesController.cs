@@ -11,7 +11,7 @@ using ProAgil.Model;
 namespace ProAgil.Controllers
 {
 
-	[Route("api/[controller]")]
+	[Route("api/[controller]")] 
 	[ApiController]
 	public class ValuesController : ControllerBase
 	{
