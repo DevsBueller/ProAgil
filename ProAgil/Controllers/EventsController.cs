@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProAgil.Domain;
+using ProAgil.Dtos;
 using ProAgil.Repository;
 
 namespace ProAgil.Controllers
@@ -17,9 +19,12 @@ namespace ProAgil.Controllers
 	{
 		private readonly IProAgilRepository _repository;
 
-		public EventsController(IProAgilRepository repository)
+		public IMapper _mapper { get; }
+
+		public EventsController(IProAgilRepository repository, IMapper mapper)
 		{
 			_repository = repository;
+			_mapper = mapper;
 		}
 
 		// GET: api/Events
@@ -28,24 +33,29 @@ namespace ProAgil.Controllers
 		{
 			try
 			{
-				var result = await _repository.GetAllEventAsync(true);
-				return Ok(result);
+				var events = await _repository.GetAllEventAsync(true);
+				var results = _mapper.Map<EventDto[]>(events);
+				return Ok(results);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
 
-				return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco Dados Falhou");
+				return this.StatusCode(StatusCodes.Status500InternalServerError, $"Banco Dados Falhou {ex.Message}");
 			}
 
 		}
 
 		// GET: api/Events/5
-		[HttpGet("{id}")]
-		public async Task<ActionResult> GetEvent(int id)
+		[HttpGet("{EventId}")]
+		public async Task<ActionResult> GetEvent(int EventId)
 		{
 			try
 			{
-				var result = await _repository.GetEventAsyncById(id, true);
+
+				var Event = await _repository.GetEventAsyncById(EventId, true);
+				var result = _mapper.Map<EventDto>(Event);
+		 
+
 				return Ok(result);
 			}
 			catch (Exception)
@@ -60,8 +70,9 @@ namespace ProAgil.Controllers
 		{
 			try
 			{
-				var result = await _repository.GetAllEventAsyncByTema(theme, true);
-				return Ok(result);
+				var events = await _repository.GetAllEventAsyncByTema(theme, true);
+				var results = _mapper.Map<EventDto[]>(events);
+				return Ok(results);
 			}
 			catch (Exception)
 			{
@@ -72,19 +83,21 @@ namespace ProAgil.Controllers
 
 		// PUT: api/Events/5
 		[HttpPut("{EventId}")]
-		public async Task<IActionResult> PutEvent(int EventId, Event model)
+		public async Task<IActionResult> PutEvent(int EventId, EventDto model)
 		{
 			try
 			{
-				var result = await _repository.GetEventAsyncById(EventId, false);
-				if (result == null)
+		
+				var eventModel = await _repository.GetEventAsyncById(EventId, false);
+				if (eventModel == null)
 				{
 					return NotFound();
 				}
-				_repository.Update(model);
+				_mapper.Map(model, eventModel);
+				_repository.Update(eventModel);
 				if (await _repository.SaveChangesAsync())
 				{
-					return Created($"api/events/{model.Id}", model);
+					return Created($"api/events/{model.Id}", _mapper.Map<EventDto>(eventModel));
 
 				}
 
@@ -102,21 +115,22 @@ namespace ProAgil.Controllers
 
 		// POST: api/Events
 		[HttpPost]
-		public async Task<ActionResult> PostEvent(Event model)
+		public async Task<ActionResult> PostEvent(EventDto model)
 		{
 			try
 			{
-				_repository.Add(model);
+				var eventModel = _mapper.Map<Event>(model);
+				_repository.Add(eventModel);
 				if (await _repository.SaveChangesAsync())
 				{
-					return Created($"api/evento/{model.Id}", model);
+					return Created($"api/evento/{model.Id}", _mapper.Map<EventDto>(eventModel));
 				}
 
 			}
-			catch (System.Exception)
+			catch (System.Exception ex)
 			{
 
-				return this.StatusCode(StatusCodes.Status500InternalServerError, "Banco Dados Falhou");
+				return this.StatusCode(StatusCodes.Status500InternalServerError, $"Banco Dados Falhou {ex.Message}");
 			}
 
 

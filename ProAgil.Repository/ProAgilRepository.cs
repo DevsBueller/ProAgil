@@ -48,7 +48,7 @@ namespace ProAgil.Repository
 					.Include(p => p.SpeakersEvents)
 					.ThenInclude(p => p.Speaker);
 			}
-			query = query.OrderByDescending(c => c.EventDate);
+			query = query.OrderBy(c => c.Id);
 			return await query.ToArrayAsync();
 		}
 
@@ -85,8 +85,8 @@ namespace ProAgil.Repository
 					.Include(p => p.SpeakersEvents)
 					.ThenInclude(p => p.Speaker);
 			}
-			query.Where(e => e.Id == EventId);
-			query = query.OrderByDescending(c => c.EventDate);
+		
+			query = query.AsNoTracking().OrderByDescending(c => c.EventDate).Where(e => e.Id == EventId);
 			return await query.FirstOrDefaultAsync();
 		}
 		//PALESTRANTE

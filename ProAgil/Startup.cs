@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -32,6 +33,7 @@ namespace ProAgil
 					options.UseMySql(Configuration.GetConnectionString("DefaultConnection"),
 					builder => builder.MigrationsAssembly("ProAgil.Repository")));
 			services.AddScoped<IProAgilRepository, ProAgilRepository>();
+			services.AddAutoMapper();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 		}
 
