@@ -13,7 +13,7 @@ namespace ProAgil.Dtos
 		[Required(ErrorMessage ="Campo Obrigatório")]
 		[StringLength(100, MinimumLength =3, ErrorMessage ="Local é entre 3 e 100 caracteres")]
 		public string Local { get; set; }
-		public string EventDate { get; set; }
+		public DateTime EventDate { get; set; }
 		[Required (ErrorMessage ="O tema é de preenchimento obrigatório")]
 		public string Theme { get; set; }
 		[Range(5, 120000, ErrorMessage ="A quantidade de pessoas deve ser entre 5 e 120.000")]

@@ -13,8 +13,8 @@ namespace ProAgil.Dtos
 		public string Name { get; set; } 
 		[Required]
 		public decimal Price { get; set; }
-		public string BeginDate { get; set; }
-		public string FinalDate { get; set; }
+		public DateTime BeginDate { get; set; }
+		public DateTime FinalDate { get; set; }
 		[Range(2, 120000)]
 		public int Quantity { get; set; }
 
