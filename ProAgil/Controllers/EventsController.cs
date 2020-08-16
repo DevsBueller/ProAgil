@@ -85,7 +85,7 @@ namespace ProAgil.Controllers
 
 				var Event = await _repository.GetEventAsyncById(EventId, true);
 				var result = _mapper.Map<EventDto>(Event);
-		 
+
 
 				return Ok(result);
 			}
@@ -114,18 +114,36 @@ namespace ProAgil.Controllers
 
 		// PUT: api/Events/5
 		[HttpPut("{EventId}")]
-		public async Task<IActionResult> PutEvent(int EventId, EventDto model)
+		public async Task<IActionResult> Put(int EventId, EventDto model)
 		{
 			try
 			{
-		
+
 				var eventModel = await _repository.GetEventAsyncById(EventId, false);
 				if (eventModel == null)
 				{
 					return NotFound();
 				}
+				var idLots = new List<int>();
+				var idSocialNetWorks = new List<int>();
+
+				model.Lots.ForEach(item => idLots.Add(item.Id));
+				model.SocialNetworks.ForEach(item => idSocialNetWorks.Add(item.Id));
+
+				var lots = eventModel.Lots.Where(
+				   lot => !idLots.Contains(lot.Id)
+			   ).ToArray();
+
+				var SocialNetWorks = eventModel.SocialNetworks.Where(
+			  network => !idSocialNetWorks.Contains(network.Id)
+				).ToArray();
+
+				if (lots.Length > 0) _repository.DeleteRange(lots);
+				if (SocialNetWorks.Length > 0) _repository.DeleteRange(SocialNetWorks);
+
 				_mapper.Map(model, eventModel);
 				_repository.Update(eventModel);
+
 				if (await _repository.SaveChangesAsync())
 				{
 					return Created($"api/events/{model.Id}", _mapper.Map<EventDto>(eventModel));
@@ -201,7 +219,7 @@ namespace ProAgil.Controllers
 		private async Task<bool> EventExists(int id)
 		{
 			return (await _repository.GetAllEventAsync(false)).ToList().Any(e => e.Id == id);
-			
+
 		}
 	}
 }
